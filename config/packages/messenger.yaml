@@ -1,0 +1,20 @@
+framework:
+    messenger:
+        default_bus: messenger.bus.default
+        transports:
+          rabbitmq:
+            dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+            options:
+              exchange:
+                name: send_mail
+                type: direct
+              queues:
+                send_mail_event: ~            
+          doctrine_log:
+            dsn: 'doctrine://default'
+            options:
+              table_name: messenger_messages
+        routing:
+            'App\Application\Message\SendMailMessage': 
+              - rabbitmq
+              - doctrine_log

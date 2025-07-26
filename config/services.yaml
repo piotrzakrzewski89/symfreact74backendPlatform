@@ -1,0 +1,17 @@
+---
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: "../src/"
+        exclude:
+            - "../src/DependencyInjection/"
+            - "../src/Domain/Entity/"
+            - "../src/Infrastructure/Framework/Kernel.php"
+
+    App\Application\Handler\SendMailMessageHandler:
+        tags: [messenger.message_handler]

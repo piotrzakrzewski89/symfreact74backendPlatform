@@ -1,0 +1,54 @@
+services:
+    php:
+        build:
+            context: ./docker/php
+            args:
+                TIMEZONE: Europe/Warsaw
+        container_name: php
+        volumes:
+            - ./:/app
+            - './docker/php/conf.d:/usr/local/etc/php/conf.d'
+            - 'php_composer_data:/root/.composer'
+        networks:
+            - network_main
+            - network_rabbit
+    www:
+        build: ./docker/www
+        container_name: www
+        ports:
+            - 80:80
+        volumes:
+            - ./:/app
+            - ./docker/www/conf.d:/etc/nginx/conf.d
+        networks:
+            - network_main
+
+    db:
+        image: "mariadb:11"
+        container_name: db
+        volumes:
+            - db_maria_data:/var/lib/mysql
+        networks:
+            - network_main
+        ports:
+            - 3306:3306
+        environment:
+            - TZ=UTC
+            - MYSQL_ROOT_PASSWORD=root
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    db_maria_data:
+    php_composer_data:
+
+networks:
+  network_main:
+    name: network_main
+    driver: bridge
+  network_rabbit:
+    external: true
+    name: network_rabbit
