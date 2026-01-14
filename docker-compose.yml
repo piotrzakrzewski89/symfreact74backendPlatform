@@ -12,37 +12,70 @@ services:
         networks:
             - network_main
             - network_rabbit
-    www:
+            - sandbox-network
+    platform-www:
         build: ./docker/www
-        container_name: www
+        container_name: platform-www
         ports:
-            - 80:80
+            - 8084:80
         volumes:
             - ./:/app
             - ./docker/www/conf.d:/etc/nginx/conf.d
         networks:
             - network_main
+            - sandbox-network
 
-    db:
-        image: "mariadb:11"
-        container_name: db
+    platform-db:
+        image: postgres:latest
+        container_name: platform-db
         volumes:
-            - db_maria_data:/var/lib/mysql
+            - platform_db_data:/var/lib/postgresql/data
         networks:
             - network_main
+            - sandbox-network
         ports:
-            - 3306:3306
+            - 5433:5432
         environment:
-            - TZ=UTC
-            - MYSQL_ROOT_PASSWORD=root
+            - POSTGRES_USER=platform
+            - POSTGRES_PASSWORD=platform
+            - POSTGRES_DB=platform
+            - TZ=Europe/Warsaw
         healthcheck:
-            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            test: ["CMD-SHELL", "pg_isready -U platform"]
             interval: 10s
             timeout: 5s
             retries: 5
 
+    mercure:
+        image: dunglas/mercure
+        container_name: mercure
+        restart: unless-stopped
+        ports:
+            - 3000:80
+        environment:
+            SERVER_NAME: ':80'
+            MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+            MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+            MERCURE_TRANSPORT_URL: 'bolt://mercure.db'
+            MERCURE_EXTRA_DIRECTIVES: |
+                cors_origins *
+                anonymous
+        networks:
+            - network_main
+            - sandbox-network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
+            timeout: 5s
+            retries: 5
+            start_period: 60s
+        volumes:
+            - mercure_data:/data
+            - mercure_config:/config
+
 volumes:
-    db_maria_data:
+    platform_db_data:
+    mercure_data:
+    mercure_config:
     php_composer_data:
 
 networks:
@@ -52,3 +85,6 @@ networks:
   network_rabbit:
     external: true
     name: network_rabbit
+  sandbox-network:
+    external: true
+    name: sandbox-network

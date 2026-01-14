@@ -1,0 +1,11 @@
+services:
+    # Redis client service
+    redis_client:
+        class: Predis\Client
+        arguments:
+            - '%env(default:redis://redis_chat:6379:default:REDIS_URL)%'
+            
+    # User presence service with Redis
+    App\Application\Service\UserPresenceRedisService:
+        arguments:
+            $redis: '@redis_client'

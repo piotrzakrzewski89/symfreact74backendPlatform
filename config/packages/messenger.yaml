@@ -14,7 +14,4 @@ framework:
             dsn: 'doctrine://default'
             options:
               table_name: messenger_messages
-        routing:
-            'App\Application\Message\SendMailMessage': 
-              - rabbitmq
-              - doctrine_log
+        routing: { }

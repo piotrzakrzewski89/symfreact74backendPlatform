@@ -1,5 +1,11 @@
 ---
 parameters:
+    users_api_url: 'http://user-www/api'
+    keycloak_url: '%env(KEYCLOAK_URL)%'
+    keycloak_realm: '%env(KEYCLOAK_REALM)%'
+    keycloak_admin_username: '%env(KEYCLOAK_ADMIN_USERNAME)%'
+    keycloak_admin_password: '%env(KEYCLOAK_ADMIN_PASSWORD)%'
+    keycloak_client_id: '%env(KEYCLOAK_CLIENT_ID)%'
 
 services:
     _defaults:
@@ -13,5 +19,31 @@ services:
             - "../src/Domain/Entity/"
             - "../src/Infrastructure/Framework/Kernel.php"
 
-    App\Application\Handler\SendMailMessageHandler:
-        tags: [messenger.message_handler]
+    # Redis client service
+    redis_client:
+        class: Predis\Client
+        arguments:
+            - 'redis://redis_chat:6379'
+    
+    # Alias for Predis\Client
+    Predis\Client:
+        alias: redis_client
+            
+    # User presence service with Redis
+    App\Application\Service\UserPresenceRedisService:
+        arguments:
+            $redis: '@redis_client'
+    
+    # Keycloak token service for admin authentication
+    App\Application\Service\KeycloakTokenService:
+        arguments:
+            $keycloakUrl: '%keycloak_url%'
+            $keycloakRealm: '%keycloak_realm%'
+            $adminUsername: '%keycloak_admin_username%'
+            $adminPassword: '%keycloak_admin_password%'
+            $clientId: '%keycloak_client_id%'
+    
+    # Users microservice service
+    App\Application\Service\UsersMicroserviceService:
+        arguments:
+            $usersApiUrl: '%users_api_url%'
