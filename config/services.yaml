@@ -6,6 +6,7 @@ parameters:
     keycloak_admin_username: '%env(KEYCLOAK_ADMIN_USERNAME)%'
     keycloak_admin_password: '%env(KEYCLOAK_ADMIN_PASSWORD)%'
     keycloak_client_id: '%env(KEYCLOAK_CLIENT_ID)%'
+    upload_directory: '%kernel.project_dir%/public/uploads/book-covers'
 
 services:
     _defaults:
@@ -47,3 +48,8 @@ services:
     App\Application\Service\UsersMicroserviceService:
         arguments:
             $usersApiUrl: '%users_api_url%'
+    
+    # Upload controller
+    App\UI\Http\Controller\UploadController:
+        arguments:
+            $uploadDirectory: '%upload_directory%'

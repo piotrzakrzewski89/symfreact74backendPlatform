@@ -12,7 +12,6 @@ use App\Application\Service\UsersMicroserviceService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -51,9 +50,19 @@ final class ChatController extends AbstractController
         }
     }
 
-    #[Route('/users', methods: ['GET'])]
-    public function getUsers(#[CurrentUser] $user): JsonResponse
+    #[Route('/users', methods: ['GET', 'OPTIONS'])]
+    public function getUsers(Request $request, #[CurrentUser] $user): JsonResponse
     {
+        // CORS headers dla OPTIONS
+        if ($request->getMethod() === 'OPTIONS') {
+            return new JsonResponse('', 200, [
+                'Access-Control-Allow-Origin' => '*',
+                'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With',
+                'Access-Control-Max-Age' => '3600'
+            ]);
+        }
+
         try {
             // Mark current user as online
             $this->userPresenceService->markUserAsOnline($user->getId());
@@ -71,6 +80,10 @@ final class ChatController extends AbstractController
             // Get current user's company UUID
             $currentUserCompanyUuid = $user->getCompanyUuid();
             
+            // Check if current user is admin
+            $currentUserRoles = $user->getRoles();
+            $isAdmin = in_array('ROLE_ADMIN_CMS', $currentUserRoles);
+            
             // Format users with presence information
             $formattedUsers = [];
             foreach ($users as $userArray) {
@@ -80,14 +93,14 @@ final class ChatController extends AbstractController
                     continue;
                 }
                 
-                // Skip admins (ROLE_ADMIN_CMS)
+                // Skip admins (ROLE_ADMIN_CMS) from the list
                 $roles = $userArray['roles'] ?? [];
                 if (in_array('ROLE_ADMIN_CMS', $roles)) {
                     continue;
                 }
                 
-                // Skip users from different companies
-                if ($currentUserCompanyUuid && isset($userArray['companyUuid'])) {
+                // Skip users from different companies (only if current user is NOT admin)
+                if (!$isAdmin && $currentUserCompanyUuid && isset($userArray['companyUuid'])) {
                     if ($userArray['companyUuid'] !== $currentUserCompanyUuid) {
                         continue;
                     }

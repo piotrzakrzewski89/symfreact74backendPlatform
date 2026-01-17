@@ -1,6 +1,3 @@
----
 controllers:
-    resource:
-        path: ../src/UI/Http/Controller/
-        namespace: App\UI\Http\Controller
+    resource: ../src/UI/Http/Controller/
     type: attribute

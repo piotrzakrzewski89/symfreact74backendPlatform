@@ -1,8 +1,4 @@
 nelmio_api_doc:
-    documentation:
-        info:
-            title: 'My API'
-            version: 1.0.0
-    areas: # opcjonalnie
-        default:
-            path_patterns: [ '^/api' ]
+    areas:
+        path_patterns:
+            - ^/api

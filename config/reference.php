@@ -690,11 +690,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Default: false
  *     },
  * }
- * @psalm-type MakerConfig = array{
- *     root_namespace?: scalar|null|Param, // Default: "App"
- *     generate_final_classes?: bool|Param, // Default: true
- *     generate_final_entities?: bool|Param, // Default: false
- * }
  * @psalm-type DoctrineConfig = array{
  *     dbal?: array{
  *         default_connection?: scalar|null|Param,
@@ -1319,9 +1314,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             lifetime?: int|Param, // Default: 31536000
  *             path?: scalar|null|Param, // Default: "/"
  *             domain?: scalar|null|Param, // Default: null
- *             secure?: true|false|"auto"|Param, // Default: null
+ *             secure?: true|false|"auto"|Param, // Default: false
  *             httponly?: bool|Param, // Default: true
- *             samesite?: null|"lax"|"strict"|"none"|Param, // Default: "lax"
+ *             samesite?: null|"lax"|"strict"|"none"|Param, // Default: null
  *             always_remember_me?: bool|Param, // Default: false
  *             remember_me_parameter?: scalar|null|Param, // Default: "_remember_me"
  *         },
@@ -1368,14 +1363,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         forced_allow_origin_value?: scalar|null|Param, // Default: null
  *         skip_same_as_origin?: bool|Param,
  *     }>,
- * }
- * @psalm-type WebProfilerConfig = array{
- *     toolbar?: bool|array{ // Profiler toolbar configuration
- *         enabled?: bool|Param, // Default: false
- *         ajax_replace?: bool|Param, // Replace toolbar on AJAX requests // Default: false
- *     },
- *     intercept_redirects?: bool|Param, // Default: false
- *     excluded_ajax_paths?: scalar|null|Param, // Default: "^/((index|app(_[\\w]+)?)\\.php/)?_wdt"
  * }
  * @psalm-type MonologConfig = array{
  *     use_microseconds?: scalar|null|Param, // Default: true
@@ -1840,14 +1827,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         parameters?: ParametersConfig,
  *         services?: ServicesConfig,
  *         framework?: FrameworkConfig,
- *         maker?: MakerConfig,
  *         doctrine?: DoctrineConfig,
  *         doctrine_migrations?: DoctrineMigrationsConfig,
  *         nelmio_api_doc?: NelmioApiDocConfig,
  *         twig?: TwigConfig,
  *         security?: SecurityConfig,
  *         nelmio_cors?: NelmioCorsConfig,
- *         web_profiler?: WebProfilerConfig,
  *         monolog?: MonologConfig,
  *         api_platform?: ApiPlatformConfig,
  *         mercure?: MercureConfig,
@@ -1878,7 +1863,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig?: TwigConfig,
  *         security?: SecurityConfig,
  *         nelmio_cors?: NelmioCorsConfig,
- *         web_profiler?: WebProfilerConfig,
  *         monolog?: MonologConfig,
  *         api_platform?: ApiPlatformConfig,
  *         mercure?: MercureConfig,

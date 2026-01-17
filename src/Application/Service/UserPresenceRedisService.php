@@ -12,7 +12,7 @@ final class UserPresenceRedisService
 {
     private const ONLINE_PREFIX = 'user:online:';
     private const PRESENCE_PREFIX = 'user:presence:';
-    private const ONLINE_TTL = 300; // 5 minut
+    private const ONLINE_TTL = 60; // 1 min
 
     public function __construct(
         private RedisClient $redis,

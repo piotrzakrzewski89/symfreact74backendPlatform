@@ -1,3 +1,0 @@
-controllers:
-    resource: ../../src/UI/Http/Controller/
-    type: attribute

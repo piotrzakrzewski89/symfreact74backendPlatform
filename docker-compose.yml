@@ -4,25 +4,24 @@ services:
             context: ./docker/php
             args:
                 TIMEZONE: Europe/Warsaw
-        container_name: php
+        container_name: platform-php
         volumes:
             - ./:/app
             - './docker/php/conf.d:/usr/local/etc/php/conf.d'
             - 'php_composer_data:/root/.composer'
         networks:
-            - network_main
-            - network_rabbit
             - sandbox-network
     platform-www:
         build: ./docker/www
         container_name: platform-www
+        depends_on:
+            - php
         ports:
             - 8084:80
         volumes:
             - ./:/app
             - ./docker/www/conf.d:/etc/nginx/conf.d
         networks:
-            - network_main
             - sandbox-network
 
     platform-db:
@@ -31,17 +30,16 @@ services:
         volumes:
             - platform_db_data:/var/lib/postgresql/data
         networks:
-            - network_main
             - sandbox-network
         ports:
             - 5433:5432
         environment:
-            - POSTGRES_USER=platform
-            - POSTGRES_PASSWORD=platform
-            - POSTGRES_DB=platform
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
             - TZ=Europe/Warsaw
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U platform"]
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
             interval: 10s
             timeout: 5s
             retries: 5
@@ -61,7 +59,6 @@ services:
                 cors_origins *
                 anonymous
         networks:
-            - network_main
             - sandbox-network
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
@@ -79,12 +76,6 @@ volumes:
     php_composer_data:
 
 networks:
-  network_main:
-    name: network_main
-    driver: bridge
-  network_rabbit:
-    external: true
-    name: network_rabbit
-  sandbox-network:
-    external: true
-    name: sandbox-network
+    sandbox-network:
+        external: true
+        name: sandbox-network

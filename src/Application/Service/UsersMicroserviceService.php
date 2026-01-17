@@ -45,18 +45,30 @@ final class UsersMicroserviceService
         return null;
     }
 
+    public function getUserByUuid(string $uuid): ?array
+    {
+        $users = $this->getAllUsers();
+        
+        foreach ($users as $user) {
+            if ($user['uuid'] === $uuid) {
+                return $user;
+            }
+        }
+        
+        return null;
+    }
+
     public function getUserById(string $id): ?array
     {
-        $response = $this->httpClient->request('GET', $this->usersApiUrl . '/api/users/' . $id);
+        // Get all users and find by UUID
+        $users = $this->getAllUsers();
         
-        if ($response->getStatusCode() === 404) {
-            return null;
+        foreach ($users as $user) {
+            if (isset($user['uuid']) && $user['uuid'] === $id) {
+                return $user;
+            }
         }
         
-        if ($response->getStatusCode() !== 200) {
-            throw new \RuntimeException('Failed to fetch user from Users microservice');
-        }
-        
-        return $response->toArray();
+        return null;
     }
 }

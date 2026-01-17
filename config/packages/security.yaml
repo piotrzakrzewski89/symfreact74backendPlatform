@@ -18,4 +18,7 @@ security:
             stateless: true
 
     access_control:
-        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/api/books, roles: ROLE_USER }
+        - { path: ^/api/purchases, roles: ROLE_USER }
+        - { path: ^/api/platform, roles: ROLE_USER }
